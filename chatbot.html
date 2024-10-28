@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html ng-app="chatApp">
+<head>
+  <title>AI Chatbot</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f2f5;
+      margin: 0;
+    }
+    .chatbox {
+      width: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 10px;
+    }
+    .chatbox p {
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 12px;
+      max-width: 80%;
+    }
+    .user {
+      background-color: #007bff;
+      color: #fff;
+      align-self: flex-end;
+      text-align: right;
+    }
+    .bot {
+      background-color: #e9e9eb;
+      color: #333;
+      align-self: flex-start;
+      text-align: left;
+    }
+    input[type="text"] {
+      width: 250px;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      outline: none;
+    }
+    button {
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body ng-controller="ChatController">
+  <div class="chatbox">
+    <div ng-repeat="message in messages">
+      <p ng-class="{'user': message.sender === 'user', 'bot': message.sender === 'bot'}">{{ message.text }}</p>
+    </div>
+  </div>
+
+  <input type="text" ng-model="userInput" placeholder="Type a message..." ng-keyup="$event.keyCode == 13 && sendMessage()" />
+  <button ng-click="sendMessage()">Send</button>
+
+  <script>
+    var app = angular.module('chatApp', []);
+
+    app.controller('ChatController', function($scope, ChatService) {
+      $scope.messages = [];
+      $scope.userInput = '';
+
+      $scope.sendMessage = function() {
+        if ($scope.userInput.trim() === '') return;
+
+        // Add the user message to the chat
+        $scope.messages.push({ text: $scope.userInput, sender: 'user' });
+
+        // Get response from ChatService immediately
+        const response = ChatService.getResponse($scope.userInput);
+        $scope.messages.push({ text: response, sender: 'bot' });
+
+        $scope.userInput = '';
+      };
+    });
+
+    app.service('ChatService', function() {
+      // Hardcoded responses similar to the Python chatbot
+      const responses = {
+        "hii":"hey",
+        "hi": "Hello",
+        "Hi": "Hello",
+        "Hello": "Hi there!",
+        "How are you?": "I am fine and you?",
+        "I am fine": "Great!",
+        "What are you doing?": "Nothing, just roaming around.",
+        "tell me a joke": "I'm obsessed with airport jokes.  my doctor says its terminal problem"
+      };
+
+      this.getResponse = function(message) {
+        // Return response directly for immediate feedback
+        return responses[message] || "I'm not sure how to respond to that.";
+      };
+    });
+  </script>
+</body>
+</html>
